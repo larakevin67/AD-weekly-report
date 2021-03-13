@@ -5,6 +5,15 @@ $Users90 = Get-ADUser -Filter $filt -properties *
 $DisabledUsers = Search-ADAccount -AccountDisabled -UsersOnly | Where-Object {$_.distinguishedname -notlike "*OU=Disabled Users,DC=BGO,DC=local*"} 
 $DisabledComputers = Search-ADAccount -AccountDisabled -ComputersOnly | Where-Object {$_.distinguishedname -notlike "*OU=Disabled Computers,DC=BGO,DC=local*"} 
 
+$smtp = "smtp server"
+$Password = '**********'
+$User = "sample@email.com"
+$SecurePassword = $Password | ConvertTo-SecureString -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential ($User, $SecurePassword)
+$to = "email"
+$from = "email"
+$subject = "AD Weekly Report"
+
 foreach($Computer in $Computers90){
     $name = $Computer.Name 
     $passex = $Computer.Ipv4address
@@ -118,4 +127,4 @@ TH{border: 1px solid black; background: #dddddd; padding: 5px; color: #000000;}T
 <th>Orginal OU</th>
 </tr>$disabledcompreport</table><tr>"
 
-$html | Out-File c:\90DayUserComputerReport.html
+send-MailMessage -SmtpServer $smtp -To $to -From $from -Subject $subject -Body $html -usessl -Credential $cred -Port 587
